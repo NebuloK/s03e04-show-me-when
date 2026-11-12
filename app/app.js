@@ -12,15 +12,18 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const fmt = new Intl.DateTimeFormat(undefined, { dateStyle: 'short', timeStyle: 'medium' });
 const local = (iso) => fmt.format(new Date(iso));
 
-function row(i) {
-  const done = acked.has(i.id);
-  return `<li data-testid="incident-row" data-id="${esc(i.id)}" tabindex="0" class="row ${esc(i.severity)}${selected === i.id ? ' selected' : ''}">
-    <span class="id">${esc(i.id)}</span>
+function makeRow(i) {
+  const li = document.createElement('li');
+  li.setAttribute('data-testid', 'incident-row');
+  li.dataset.id = i.id;
+  li.tabIndex = 0;
+  li.className = `row ${i.severity}`;
+  li.innerHTML = `<span class="id">${esc(i.id)}</span>
     <span class="sev">${esc(i.severity)}</span>
     <span class="what">${esc(i.service)} · ${esc(i.region)} · ${esc(i.summary)}</span>
     <time datetime="${esc(i.openedAt)}">${local(i.openedAt)}</time>
-    ${done ? '<span data-testid="acked" class="acked">acked ✓</span>' : ''}
-  </li>`;
+    <span class="mark"></span>`;
+  return li;
 }
 
 function renderPanel() {
@@ -29,16 +32,32 @@ function renderPanel() {
   if (!i) return;
   const done = acked.has(i.id);
   panel.dataset.id = i.id;
-  panel.innerHTML = `<h2>${esc(i.id)}</h2>
+  const html = `<h2>${esc(i.id)}</h2>
     <p>${esc(i.service)} · ${esc(i.region)} · ${esc(i.severity)}</p>
     <p>${esc(i.summary)}</p>
     <p>opened <time datetime="${esc(i.openedAt)}">${local(i.openedAt)}</time></p>
     ${done ? '<p class="acked">acked ✓</p>' : '<button data-testid="panel-ack" type="button">Ack</button>'}`;
+  if (panel._html !== html) { panel._html = html; panel.innerHTML = html; } // untouched while nothing changed, so a click is never lost
 }
 
+// Rows are kept, never rebuilt: a new incident adds one row at its place, so nothing else moves or is replaced.
+const rowEls = new Map();
 function render() {
-  const items = [...byId.values()].sort((a, b) => new Date(b.openedAt) - new Date(a.openedAt));
-  list.innerHTML = items.map(row).join('');
+  const items = [...byId.values()].sort((x, y) => new Date(y.openedAt) - new Date(x.openedAt));
+  let prev = null;
+  for (const i of items) {
+    let el = rowEls.get(i.id);
+    if (!el) {
+      el = makeRow(i);
+      rowEls.set(i.id, el);
+      list.insertBefore(el, prev ? prev.nextSibling : list.firstChild);
+    }
+    prev = el;
+    el.classList.toggle('selected', selected === i.id);
+    const mark = el.querySelector('.mark');
+    const want = acked.has(i.id);
+    if (want && !mark.firstChild) mark.innerHTML = '<span data-testid="acked" class="acked">acked ✓</span>';
+  }
   empty.hidden = items.length > 0;
   renderPanel();
 }
