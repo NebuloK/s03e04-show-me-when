@@ -12,3 +12,5 @@ On-call needs to see new incidents the moment they come in and take one with a c
   acked (`data-testid="acked"`) (R2).
 
 Acceptance: a new incident shows at the top without a reload; Ack on a row acks that incident.
+
+**Changed by product (after step 1):** Ack leaves the row. A row opens its incident panel (`data-testid="incident-panel"`, names the incident id); Ack lives there (`data-testid="panel-ack"`). The row keeps the acked mark (`acked`).

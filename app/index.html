@@ -16,7 +16,10 @@
     <main data-testid="board">
       <p data-testid="loader" class="loader">Loading incidents…</p>
       <p data-testid="empty" hidden>No incidents.</p>
-      <ul data-testid="incident-list" class="list"></ul>
+      <div class="layout">
+        <ul data-testid="incident-list" class="list"></ul>
+        <aside data-testid="incident-panel" class="panel" hidden></aside>
+      </div>
     </main>
     <footer>sched-prod incident board · build <code data-testid="build-sha">dev</code></footer>
   </body>

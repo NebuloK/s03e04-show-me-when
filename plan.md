@@ -14,7 +14,7 @@ what just broke and takes it.
 ## Requirements
 
 - **R1** New incidents appear live at the top of the list, newest first.
-- **R2** Each incident row has an **Ack** button. Ack sends the ack (`api.ack(id)`) and marks the row acked.
+- **R2** (changed by product) Incident rows have no Ack button. Clicking a row opens its incident panel, which names the incident id and holds the **Ack** button. Ack sends `api.ack(id)` for that id and marks the row acked. New incidents still appear live at the top; they never change an open panel's target.
 - **R3** Show a loader until incidents load.
 - **R4** The board refreshes itself every 2 seconds while open.
 - **R5** Times show in the viewer's local time; day before month for EU locales (dd/mm).
@@ -29,7 +29,8 @@ what just broke and takes it.
 | `empty` | what shows when there are no incidents |
 | `incident-list` | the list |
 | `incident-row` | one incident row, with `data-id="<incident id>"` |
-| `ack` | the Ack button in a row |
+| `incident-panel` | the panel opened by a row; names the incident id (`data-id`) |
+| `panel-ack` | the Ack button in the panel |
 | `acked` | the acked mark in a row |
 | `build-sha` | the sha in the footer |
 
